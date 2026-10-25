@@ -6,7 +6,9 @@ import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.Method
 import com.android.tools.smali.dexlib2.iface.instruction.NarrowLiteralInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
+import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
+import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import com.android.tools.smali.dexlib2.iface.reference.TypeReference
 
 /**
@@ -61,7 +63,7 @@ internal fun mediaIsAdFingerprint(classifier: Method) = Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "Z",
     parameters = listOf(),
-    definingClass = "Lcom/instagram/feed/media/Media;",
+    definingClass = MEDIA_CLASS,
     custom = { method, _ ->
         val tail = method.implementation?.instructions?.toList().orEmpty().takeLast(3)
         val call = (tail.firstOrNull() as? ReferenceInstruction)?.reference as? MethodReference
@@ -92,6 +94,70 @@ internal fun mediaIsAdFingerprint(classifier: Method) = Fingerprint(
 private const val FEED_CACHE_HANDLER_CLASS =
     "Lcom/instagram/barcelona/feed/data/cache/BarcelonaSpoolFeedCacheHandler;"
 private const val INJECT_AD_ANCHOR = "injectAdToFeedSessionAtPosition"
+
+internal const val MEDIA_CLASS = "Lcom/instagram/feed/media/Media;"
+internal const val FEED_ITEMS_KEY = "feed_items"
+internal const val LEGACY_ITEMS_KEY = "items"
+private const val AD_INSERTIONS_KEY = "max_num_possible_ad_insertions"
+
+/**
+ * Index of the `iput-object` that stores the List parsed for JSON [key], i.e. the first List-field
+ * store after the `const-string key` comparison. -1 if absent.
+ */
+internal fun listStoreIndexAfterKey(method: Method, key: String): Int {
+    val instructions = method.implementation?.instructions?.toList().orEmpty()
+    val keyIndex = instructions.indexOfFirst {
+        ((it as? ReferenceInstruction)?.reference as? StringReference)?.string == key
+    }
+    if (keyIndex < 0) return -1
+    val storeOffset = instructions.drop(keyIndex + 1).indexOfFirst {
+        it.opcode == Opcode.IPUT_OBJECT && ((it as ReferenceInstruction).reference as FieldReference).type == "Ljava/util/List;"
+    }
+    return if (storeOffset < 0) -1 else keyIndex + 1 + storeOffset
+}
+
+/**
+ * Hook 3 — the feed response JSON parser (server-inlined ads).
+ *
+ *   // 510406906: LX/3gb;   452/512207626: LX/4nb;
+ *   public final Object unsafeParseFromJson(JsonParser p) {
+ *       ... if ("feed_items".equals(field)) { list = new ArrayList(); ...add(FeedItemParser.parse(p)); response.feedItems = list; }
+ *       ... if ("items".equals(field))      { list = new ArrayList(); ...add(Media.parse(p));          response.items = list; }
+ *       ... "max_num_possible_ad_insertions" ...
+ *   }
+ *
+ * The response object's two item lists are written only here (feed_items = feed items, items = the
+ * legacy Media list that the response wrapper converts to feed items when feed_items is absent).
+ * Anchored on JSON keys, which are wire format and survive R8.
+ */
+internal object FeedResponseParserFingerprint : Fingerprint(
+    returnType = "Ljava/lang/Object;",
+    parameters = listOf("L"),
+    custom = { method, _ ->
+        method.parameterTypes.size == 1 &&
+            method.implementation?.instructions?.any {
+                ((it as? ReferenceInstruction)?.reference as? StringReference)?.string == AD_INSERTIONS_KEY
+            } == true &&
+            listStoreIndexAfterKey(method, FEED_ITEMS_KEY) >= 0 &&
+            listStoreIndexAfterKey(method, LEGACY_ITEMS_KEY) >= 0
+    },
+)
+
+/**
+ * The feed item's media getter (`X.3qC.A05()` in 510406906, `X.9cz.A05()` in 452): the only
+ * instance no-arg method of the feed item class returning Media. A media item returns itself, a
+ * Threads thread item returns its first post. The feed item class is taken from hook 2's first
+ * parameter, so no obfuscated name is pinned.
+ */
+internal fun feedItemMediaFingerprint(feedItemClass: String) = Fingerprint(
+    definingClass = feedItemClass,
+    returnType = MEDIA_CLASS,
+    parameters = listOf(),
+    custom = { method, classDef ->
+        classDef.type == feedItemClass && method.parameterTypes.isEmpty() &&
+            !AccessFlags.STATIC.isSet(method.accessFlags)
+    },
+)
 
 internal object InjectAdToFeedFingerprint : Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
