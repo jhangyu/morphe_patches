@@ -85,7 +85,7 @@ Runtime behaviour should still be confirmed on a device.
 
 | Patch | What it does | Status |
 |-------|--------------|--------|
-| **Hide ads** | Hides sponsored posts and injected "suggested"/netego units from the feed via two hooks: marks every media as organic (`Media.DED()` → false, covers server-inline ads) and blocks the feed ad-injection scheduler (`BarcelonaSpoolFeedCacheHandler` → no inject, covers injected ads). Client-side only. | ✅ Applies cleanly; pending on-device confirmation |
+| **Hide ads** | Hides sponsored posts and injected "suggested"/netego units from the feed via three hooks: marks every media as organic (`Media` isAd → false, strips ad chrome), blocks the feed ad-injection scheduler (`BarcelonaSpoolFeedCacheHandler` → no inject, covers injected ads) and drops items whose media carries the `injected` ad field from parsed feed responses (covers server-inline ads). Client-side only. | ✅ Applies cleanly; pending on-device confirmation |
 | **Remove AD_ID permission** | Removes the advertising-id (`AD_ID` / `ACCESS_ADSERVICES_AD_ID`) permissions so the device ad id can't be read. Does **not** disable Meta's core analytics. | ✅ Applies cleanly |
 | **Change app name** *(on by default)* | Renames the app to **Threads Morphe** (editable in patch options). | ✅ Verified |
 | **Change package name** *(on by default)* | Renames the package to **com.instagram.barcelona.morphe** so it installs alongside the original (editable in patch options). | ✅ Verified |
