@@ -31,7 +31,7 @@ val hideAdsPatch = bytecodePatch(
 
     execute {
         // 1. Canonical isAd predicate -> always organic.
-        MediaIsAdFingerprint.method.addInstructions(
+        mediaIsAdFingerprint(InjectedAdClassifierFingerprint.originalMethod).method.addInstructions(
             0,
             """
                 const/4 v0, 0x0
