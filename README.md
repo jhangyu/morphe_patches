@@ -3,7 +3,7 @@
 > **Fork note:** this is a fork of [durgesh0505/chiggi_morphe_patches](https://github.com/durgesh0505/chiggi_morphe_patches) v1.25.0.
 > Changes: Threads "Hide ads" no longer pins obfuscated method names, so it applies on 434.0.0.41.74
 > build 510406906 and on 452.0.0.50.64 (now listed as compatible). Details:
-> [upstream issue #24](https://github.com/durgesh0505/chiggi_morphe_patches/issues/24). Version 1.25.1.
+> [upstream issue #24](https://github.com/durgesh0505/chiggi_morphe_patches/issues/24). Version 1.25.2 (Hide ads also removes server-inlined feed ads).
 
 Third-party [Morphe](https://morphe.software) patches for **SonyLIV**, **Nutrilio**, **Threads**,
 **Arrow Puzzle**, **CrazyGames**, **JioHotstar (TV)**, **Vi Movies and TV (TV)** and **JioTV+ (TV)**.

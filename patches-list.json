@@ -1201,7 +1201,7 @@
     },
     {
       "name": "Hide ads",
-      "description": "Hides sponsored posts and injected \"suggested\" netego units from the Threads feed. Marks every media as organic, blocks the feed ad-injection scheduler (BarcelonaSpoolFeedCacheHandler) and drops ad items from parsed feed responses. Client-side only.",
+      "description": "Hides sponsored posts and injected \"suggested\" netego units from the Threads feed. Marks every media as organic, blocks the feed ad-injection scheduler (BarcelonaSpoolFeedCacheHandler) and drops server-inlined ad items from parsed feed responses. Client-side only.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
