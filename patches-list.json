@@ -436,6 +436,12 @@
               "isExperimental": false,
               "minSdk": 28,
               "description": null
+            },
+            {
+              "version": "452.0.0.50.64",
+              "isExperimental": false,
+              "minSdk": 28,
+              "description": null
             }
           ]
         }
@@ -643,6 +649,12 @@
           "targets": [
             {
               "version": "434.0.0.41.74",
+              "isExperimental": false,
+              "minSdk": 28,
+              "description": null
+            },
+            {
+              "version": "452.0.0.50.64",
               "isExperimental": false,
               "minSdk": 28,
               "description": null
@@ -1218,6 +1230,12 @@
               "isExperimental": false,
               "minSdk": 28,
               "description": null
+            },
+            {
+              "version": "452.0.0.50.64",
+              "isExperimental": false,
+              "minSdk": 28,
+              "description": null
             }
           ]
         }
@@ -1490,6 +1508,12 @@
           "targets": [
             {
               "version": "434.0.0.41.74",
+              "isExperimental": false,
+              "minSdk": 28,
+              "description": null
+            },
+            {
+              "version": "452.0.0.50.64",
               "isExperimental": false,
               "minSdk": 28,
               "description": null
